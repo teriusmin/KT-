@@ -16,14 +16,16 @@ import {
   Tv,
   Wifi,
   ShieldCheck,
-  Gift
+  Gift,
+  Building,
+  ArrowRight
 } from 'lucide-react';
 import { defaultSiteSettings } from '../../data/defaultData';
 
 type SubSection = 'all' | 'hero' | 'why' | 'product' | 'form' | 'community' | 'brand' | 'footer';
 
 export const AdminDesign: React.FC = () => {
-  const { siteSettings, updateSiteSettings, showToast } = useApp();
+  const { siteSettings, updateSiteSettings, showToast, setAdminTab } = useApp();
   const [activeSubTab, setActiveSubTab] = useState<SubSection>('all');
 
   // Form State
@@ -1194,6 +1196,31 @@ export const AdminDesign: React.FC = () => {
           </div>
 
           <div className="space-y-4 text-xs">
+            {/* Direct Jump Banner to Comprehensive Footer Legal Editor */}
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-blue-900">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                  <Building className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="font-bold text-xs text-blue-950">
+                    사업자등록번호, 대표자명, 상호, 소재지 등 모든 법적 텍스트 수정하기
+                  </div>
+                  <div className="text-[11px] text-blue-700">
+                    새로 개설된 [푸터 사업자·법적 정보] 탭에서 라벨과 내용 전체를 실시간 라이브 미리보기와 함께 수정하실 수 있습니다.
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdminTab('footer')}
+                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+              >
+                <span>법적 정보 전체 편집기 바로가기</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
             {/* Live Preview Box */}
             <div className="p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-2.5">
               <div className="text-[11px] font-bold text-blue-400 flex items-center gap-1.5">

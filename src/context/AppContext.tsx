@@ -60,8 +60,8 @@ interface AppContextType {
   isAdminAuthenticated: boolean;
   loginAdmin: () => void;
   logoutAdmin: () => void;
-  adminTab: 'dashboard' | 'leads' | 'posts' | 'products' | 'cards' | 'design' | 'settings';
-  setAdminTab: (tab: 'dashboard' | 'leads' | 'posts' | 'products' | 'cards' | 'design' | 'settings') => void;
+  adminTab: 'dashboard' | 'leads' | 'posts' | 'products' | 'cards' | 'design' | 'footer' | 'settings';
+  setAdminTab: (tab: 'dashboard' | 'leads' | 'posts' | 'products' | 'cards' | 'design' | 'footer' | 'settings') => void;
 
   selectedProductForApply: ProductItem | null;
   setSelectedProductForApply: (product: ProductItem | null) => void;
@@ -172,7 +172,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('관리자 로그아웃 되었습니다.', 'info');
   };
 
-  const [adminTab, setAdminTab] = useState<'dashboard' | 'leads' | 'posts' | 'products' | 'design' | 'settings'>('dashboard');
+  const [adminTab, setAdminTab] = useState<'dashboard' | 'leads' | 'posts' | 'products' | 'cards' | 'design' | 'footer' | 'settings'>('dashboard');
   const [selectedProductForApply, setSelectedProductForApply] = useState<ProductItem | null>(null);
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
 

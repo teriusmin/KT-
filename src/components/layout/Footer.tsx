@@ -20,12 +20,12 @@ export const Footer: React.FC<FooterProps> = ({ onScrollTo, onRequestAdmin }) =>
           <div className="md:col-span-6 space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-sm shadow-blue-900/40">
-                KT
+                {siteSettings.footerKtBadge || 'KT'}
               </div>
               <div className="flex items-center gap-2">
                 <SkylifeLogo className="h-5 sm:h-5.5 w-auto" />
                 <span className="text-lg sm:text-xl font-black text-white tracking-tight">
-                  공식 가입 센터
+                  {siteSettings.footerBrandTitle || '공식 가입 센터'}
                 </span>
               </div>
             </div>
@@ -48,7 +48,9 @@ export const Footer: React.FC<FooterProps> = ({ onScrollTo, onRequestAdmin }) =>
 
           {/* Customer Center Contact */}
           <div className="md:col-span-6 flex flex-col md:items-end justify-center space-y-2">
-            <div className="text-xs text-slate-400 font-medium">가입 및 요금 상담 직통 센터</div>
+            <div className="text-xs text-slate-400 font-medium">
+              {siteSettings.footerPhoneTitle || '가입 및 요금 상담 직통 센터'}
+            </div>
             <a
               href={`tel:${siteSettings.phoneNumber.replace(/[^0-9]/g, '')}`}
               className="text-2xl sm:text-3xl font-black text-white hover:text-blue-400 transition-colors flex items-center gap-2"
@@ -58,26 +60,42 @@ export const Footer: React.FC<FooterProps> = ({ onScrollTo, onRequestAdmin }) =>
             </a>
             <div className="text-xs text-slate-400 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-slate-500" />
-              <span>{siteSettings.workingHours}</span>
+              <span>
+                {siteSettings.footerWorkingHoursLabel ? `${siteSettings.footerWorkingHoursLabel}: ` : ''}
+                {siteSettings.workingHours}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Legal Business Information */}
-        <div className="space-y-2 text-[11px] leading-relaxed text-slate-500">
+        <div className="space-y-2.5 text-[11px] leading-relaxed text-slate-500">
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            <span>상호명: {siteSettings.companyName}</span>
-            <span>대표자: {siteSettings.representative}</span>
-            <span>사업자등록번호: {siteSettings.businessNumber}</span>
-            <span>통신판매업신고: {siteSettings.telecomSalesNumber}</span>
+            <span>{siteSettings.footerLabelCompanyName || '상호명'}: {siteSettings.companyName}</span>
+            <span>{siteSettings.footerLabelRepresentative || '대표자'}: {siteSettings.representative}</span>
+            <span>{siteSettings.footerLabelBizNum || '사업자등록번호'}: {siteSettings.businessNumber}</span>
+            <span>{siteSettings.footerLabelTelecomNum || '통신판매업신고'}: {siteSettings.telecomSalesNumber}</span>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            <span>사업장 소재지: {siteSettings.address}</span>
-            <span>개인정보관리책임자: {siteSettings.privacyManager}</span>
+            <span>{siteSettings.footerLabelAddress || '사업장 소재지'}: {siteSettings.address}</span>
+            <span>{siteSettings.footerLabelPrivacy || '개인정보관리책임자'}: {siteSettings.privacyManager}</span>
+            {siteSettings.telecomApprovalNumber && (
+              <span>{siteSettings.footerLabelApproval || '사전승낙서'}: {siteSettings.telecomApprovalNumber}</span>
+            )}
+            {siteSettings.companyEmail && (
+              <span>{siteSettings.footerLabelEmail || '이메일'}: {siteSettings.companyEmail}</span>
+            )}
           </div>
-          <p className="pt-2 text-slate-600">
-            {siteSettings.footerNoticeText || '[안내사항] 본 웹사이트는 KT 스카이라이프 유치 및 가입 상담을 대행하는 공식 온라인 파트너 대리점이며, 모든 상품 및 사은품 정책은 본사 정식 약관에 의거하여 투명하게 운영됩니다.'}
-          </p>
+          {siteSettings.footerNoticeText && (
+            <p className="pt-2 text-slate-500">
+              {siteSettings.footerNoticeText}
+            </p>
+          )}
+          {siteSettings.footerLegalSubNotice && (
+            <p className="text-[10px] text-slate-600">
+              {siteSettings.footerLegalSubNotice}
+            </p>
+          )}
         </div>
 
         {/* Bottom copyright & Admin quick trigger */}
@@ -91,26 +109,26 @@ export const Footer: React.FC<FooterProps> = ({ onScrollTo, onRequestAdmin }) =>
               onClick={() => onScrollTo('products')}
               className="hover:text-slate-300"
             >
-              결합상품
+              {siteSettings.footerLink1 || '결합상품'}
             </button>
             <button
               onClick={() => onScrollTo('calculator')}
               className="hover:text-slate-300"
             >
-              요금계산기
+              {siteSettings.footerLink2 || '요금계산기'}
             </button>
             <button
               onClick={() => onScrollTo('faq')}
               className="hover:text-slate-300"
             >
-              자주묻는질문
+              {siteSettings.footerLink3 || '자주묻는질문'}
             </button>
             <button
               onClick={onRequestAdmin}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold border border-slate-700 transition-colors"
             >
               <Settings className="w-3.5 h-3.5" />
-              <span>관리자 대시보드</span>
+              <span>{siteSettings.footerAdminBtnText || '관리자 대시보드'}</span>
             </button>
           </div>
         </div>

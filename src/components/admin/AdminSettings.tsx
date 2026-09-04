@@ -13,7 +13,8 @@ import {
   Gift,
   Wifi,
   Tv,
-  ShieldCheck
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 
 export const AdminSettings: React.FC = () => {
@@ -23,7 +24,8 @@ export const AdminSettings: React.FC = () => {
     resetToDefaultData,
     exportDataJson,
     importDataJson,
-    showToast
+    showToast,
+    setAdminTab
   } = useApp();
 
   const [seoTitle, setSeoTitle] = useState(siteSettings.seoTitle);
@@ -414,14 +416,24 @@ export const AdminSettings: React.FC = () => {
 
       {/* 3. Business Legal Information */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <Building className="w-4 h-4" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Building className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-black text-slate-900 text-sm">사업자 및 법적 정보 (푸터 노출)</h3>
+              <p className="text-xs text-slate-500">전자상거래법 준수를 위한 대리점 사업자 정보입니다.</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-black text-slate-900 text-sm">사업자 및 법적 정보 (푸터 노출)</h3>
-            <p className="text-xs text-slate-500">전자상거래법 준수를 위한 대리점 사업자 정보입니다.</p>
-          </div>
+          <button
+            type="button"
+            onClick={() => setAdminTab('footer')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold border border-blue-200 transition-colors self-start sm:self-auto"
+          >
+            <span>푸터 전체 편집기 열기</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">

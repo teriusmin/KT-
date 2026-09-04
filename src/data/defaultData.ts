@@ -165,12 +165,41 @@ export const defaultSiteSettings: SiteSettings = {
   tickerTitle: '실시간 사은품 지급 현황',
 
   // Footer text customization
+  footerBrandTitle: '공식 가입 센터',
+  footerKtBadge: 'KT',
   footerDescLine1: '인터넷 + TV 결합 대한민국 1등 가성비 공식 직영센터',
   footerDescLine2: 'KT 100% 동일망 초고속 인터넷 및 239개 전 채널 안드로이드 4 UHD TV 결합상품 공식 파트너.',
   footerBadge1: '본사 공식 인증 대리점',
   footerBadge2: '100% 당일 사은품 지급 보증',
+
+  // Footer Contact info
+  footerPhoneTitle: '가입 및 요금 상담 직통 센터',
+  footerWorkingHoursLabel: '상담 운영시간',
+
+  // Footer Business & Legal Labels & Values
+  footerLabelCompanyName: '상호명',
+  footerLabelRepresentative: '대표자',
+  footerLabelBizNum: '사업자등록번호',
+  footerLabelTelecomNum: '통신판매업신고',
+  footerLabelAddress: '사업장 소재지',
+  footerLabelPrivacy: '개인정보관리책임자',
+
+  // Extra legal info
+  footerLabelApproval: '유선통신사전승낙',
+  telecomApprovalNumber: '사전승낙서 승인번호: 제 2024-SK-00129호',
+  footerLabelEmail: '고객문의 이메일',
+  companyEmail: 'help@skylife-direct.co.kr',
+
+  // Legal Notices
   footerNoticeText: '[안내사항] 본 웹사이트는 KT 스카이라이프 유치 및 가입 상담을 대행하는 공식 온라인 파트너 대리점이며, 모든 상품 및 사은품 정책은 본사 정식 약관에 의거하여 투명하게 운영됩니다.',
+  footerLegalSubNotice: '※ 개통 후 1년 이내 해지, 일시정지, 요금제 하향 변경 시 지급된 사은품 전액 환수 및 본사 약정 위약금이 발생할 수 있습니다.',
+
+  // Copyright & Navigation
   footerCopyright: '© 2026 KT skylife Partner. All rights reserved.',
+  footerLink1: '결합상품',
+  footerLink2: '요금계산기',
+  footerLink3: '자주묻는질문',
+  footerAdminBtnText: '관리자 대시보드',
 };
 
 export const defaultProducts: ProductItem[] = [

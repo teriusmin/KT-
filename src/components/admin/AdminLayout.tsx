@@ -8,6 +8,7 @@ import {
   Gift,
   Palette,
   Settings,
+  Building,
   ExternalLink,
   RotateCcw,
   Sparkles,
@@ -28,6 +29,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
     { id: 'cards', label: '4대 혜택 카드 설정', icon: Gift },
     { id: 'products', label: '상품/요금제 설정', icon: Package },
     { id: 'design', label: '메인화면 문구 & 디자인', icon: Palette },
+    { id: 'footer', label: '푸터 사업자·법적 정보', icon: Building },
     { id: 'posts', label: '게시글/공지 관리', icon: FileText },
     { id: 'settings', label: 'SEO & 사이트 설정', icon: Settings },
   ];

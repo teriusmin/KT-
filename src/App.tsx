@@ -22,6 +22,7 @@ import { AdminPosts } from './components/admin/AdminPosts';
 import { AdminProducts } from './components/admin/AdminProducts';
 import { AdminHeroCards } from './components/admin/AdminHeroCards';
 import { AdminDesign } from './components/admin/AdminDesign';
+import { AdminFooterSettings } from './components/admin/AdminFooterSettings';
 import { AdminSettings } from './components/admin/AdminSettings';
 import { AdminLoginModal } from './components/admin/AdminLoginModal';
 import { ProductItem } from './types';
@@ -85,6 +86,7 @@ const MainAppContent: React.FC = () => {
         {adminTab === 'cards' && <AdminHeroCards />}
         {adminTab === 'products' && <AdminProducts />}
         {adminTab === 'design' && <AdminDesign />}
+        {adminTab === 'footer' && <AdminFooterSettings />}
         {adminTab === 'posts' && <AdminPosts />}
         {adminTab === 'settings' && <AdminSettings />}
         <ToastContainer />

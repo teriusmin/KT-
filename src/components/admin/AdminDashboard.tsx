@@ -10,7 +10,8 @@ import {
   Palette,
   ArrowRight,
   TrendingUp,
-  ShieldCheck
+  ShieldCheck,
+  Building
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -262,6 +263,24 @@ export const AdminDashboard: React.FC = () => {
                       디자인 테마 & 문구 커스텀
                     </div>
                     <div className="text-[11px] text-slate-500">배너, 색상, 타이틀 편집</div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              <button
+                onClick={() => setAdminTab('footer')}
+                className="w-full p-3.5 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 text-left flex items-center justify-between transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-slate-200 text-slate-800 flex items-center justify-center">
+                    <Building className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs text-slate-900 group-hover:text-blue-600">
+                      푸터 사업자·법적 정보 전체 수정
+                    </div>
+                    <div className="text-[11px] text-slate-500">상호, 대표자, 사업자번호, 고지문구</div>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />

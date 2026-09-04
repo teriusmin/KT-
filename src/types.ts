@@ -235,12 +235,41 @@ export interface SiteSettings {
   tickerTitle?: string;
 
   // Footer text customization
+  footerBrandTitle?: string;
+  footerKtBadge?: string;
   footerDescLine1?: string;
   footerDescLine2?: string;
   footerBadge1?: string;
   footerBadge2?: string;
+  
+  // Footer Contact info
+  footerPhoneTitle?: string;
+  footerWorkingHoursLabel?: string;
+  
+  // Footer Business & Legal Labels & Values
+  footerLabelCompanyName?: string;
+  footerLabelRepresentative?: string;
+  footerLabelBizNum?: string;
+  footerLabelTelecomNum?: string;
+  footerLabelAddress?: string;
+  footerLabelPrivacy?: string;
+  
+  // Extra legal / business lines
+  footerLabelApproval?: string;
+  telecomApprovalNumber?: string;
+  footerLabelEmail?: string;
+  companyEmail?: string;
+
+  // Legal notice & sub notice
   footerNoticeText?: string;
+  footerLegalSubNotice?: string;
+
+  // Copyright & Nav links
   footerCopyright?: string;
+  footerLink1?: string;
+  footerLink2?: string;
+  footerLink3?: string;
+  footerAdminBtnText?: string;
 }
 
 export interface CalculatorState {
