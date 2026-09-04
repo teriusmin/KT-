@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "site_settings": {
+      "title": "Site Settings",
+      "description": "Global website configuration, simulator rates, phone numbers, and SEO",
+      "type": "object",
+      "properties": {
+        "data": { "type": "object", "description": "JSON object of SiteSettings" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    },
+    "products": {
+      "title": "Products",
+      "description": "List of KT Skylife subscription products and plans",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array", "description": "Array of ProductItem" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    },
+    "leads": {
+      "title": "Leads",
+      "description": "Customer consultation and inquiry leads",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "region": { "type": "string" },
+        "productName": { "type": "string" },
+        "preferredTime": { "type": "string" },
+        "affiliateCardOption": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "giftAmountExpected": { "type": "number" },
+        "memo": { "type": "string" }
+      }
+    },
+    "reviews": {
+      "title": "Reviews",
+      "description": "Customer installation reviews",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array", "description": "Array of ReviewItem" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    },
+    "banners": {
+      "title": "Banners",
+      "description": "Hero and promo banners",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array", "description": "Array of BannerItem" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    },
+    "popups": {
+      "title": "Popups",
+      "description": "Notice and event modal popups",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array", "description": "Array of PopupItem" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    },
+    "events": {
+      "title": "Events",
+      "description": "Special promotion events",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array", "description": "Array of EventItem" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    }
+  }
+}

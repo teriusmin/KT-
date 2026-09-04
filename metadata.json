@@ -1,0 +1,6 @@
+{
+  "name": "KT 스카이라이프 가입센터",
+  "description": "KT 스카이라이프 인터넷 및 TV 결합상품 안내, 실시간 요금 계산기, 가입 상담 신청 및 통합 관리자 대시보드 시스템",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
