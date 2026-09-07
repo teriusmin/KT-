@@ -18,7 +18,10 @@ import {
   ShieldCheck,
   Gift,
   Building,
-  ArrowRight
+  ArrowRight,
+  Plus,
+  Trash2,
+  List
 } from 'lucide-react';
 import { defaultSiteSettings } from '../../data/defaultData';
 
@@ -86,6 +89,16 @@ export const AdminDesign: React.FC = () => {
 
     // Form Section
     collectCustomerName: siteSettings.collectCustomerName ?? false,
+    formProductSelectLabel: siteSettings.formProductSelectLabel || '희망 상품 선택',
+    formProductOptions: siteSettings.formProductOptions || [
+      '인터넷 500M + Sky All (239채널) (월 29,700원 / 사은품 최대 45만원)',
+      '인터넷 100M + Sky All (239채널) (월 24,200원 / 사은품 최대 38만원)',
+      '인터넷 1G + Sky All (239채널) (월 34,100원 / 사은품 최대 48만원)',
+      '인터넷 단독 500M (월 22,000원 / 사은품 최대 18만원)',
+      '인터넷 단독 100M (월 17,600원 / 사은품 최대 12만원)',
+      '인터넷 단독 1G (월 27,500원 / 사은품 최대 20만원)',
+      '상담 후 맞춤 상품 추천 희망 (전문 상담원 맞춤설계)'
+    ],
     formSecBadge: siteSettings.formSecBadge || '1:1 맞춤 안심 상담',
     formSecTitle: siteSettings.formSecTitle || 'KT 스카이라이프',
     formSecHighlight: siteSettings.formSecHighlight || '온라인 가입 상담 신청서',
@@ -119,7 +132,8 @@ export const AdminDesign: React.FC = () => {
     // Keep local form state synced if external cloud update happens
     setFormData((prev) => ({
       ...prev,
-      ...siteSettings
+      ...siteSettings,
+      formProductOptions: siteSettings.formProductOptions || prev.formProductOptions
     }));
   }, [siteSettings]);
 
@@ -128,6 +142,44 @@ export const AdminDesign: React.FC = () => {
       ...prev,
       [key]: value
     }));
+  };
+
+  const handleUpdateProductOption = (index: number, val: string) => {
+    setFormData((prev) => {
+      const updated = [...(prev.formProductOptions || [])];
+      updated[index] = val;
+      return { ...prev, formProductOptions: updated };
+    });
+  };
+
+  const handleAddProductOption = () => {
+    setFormData((prev) => ({
+      ...prev,
+      formProductOptions: [...(prev.formProductOptions || []), '새로운 상품 옵션 (월 요금 / 사은품 혜택)']
+    }));
+  };
+
+  const handleDeleteProductOption = (index: number) => {
+    setFormData((prev) => {
+      const updated = (prev.formProductOptions || []).filter((_, i) => i !== index);
+      return { ...prev, formProductOptions: updated };
+    });
+  };
+
+  const handleResetProductOptions = () => {
+    setFormData((prev) => ({
+      ...prev,
+      formProductOptions: [
+        '인터넷 500M + Sky All (239채널) (월 29,700원 / 사은품 최대 45만원)',
+        '인터넷 100M + Sky All (239채널) (월 24,200원 / 사은품 최대 38만원)',
+        '인터넷 1G + Sky All (239채널) (월 34,100원 / 사은품 최대 48만원)',
+        '인터넷 단독 500M (월 22,000원 / 사은품 최대 18만원)',
+        '인터넷 단독 100M (월 17,600원 / 사은품 최대 12만원)',
+        '인터넷 단독 1G (월 27,500원 / 사은품 최대 20만원)',
+        '상담 후 맞춤 상품 추천 희망 (전문 상담원 맞춤설계)'
+      ]
+    }));
+    showToast('희망 상품 드롭다운 목록이 기본 항목으로 복원되었습니다.', 'info');
   };
 
   const colorPresets = [
@@ -977,6 +1029,99 @@ export const AdminDesign: React.FC = () => {
                 onChange={(e) => handleChange('formSecSubtitle', e.target.value)}
                 className="w-full p-2.5 rounded-xl border bg-slate-50 focus:bg-white resize-none"
               />
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">
+                희망 상품 선택 드롭다운 라벨 문구 (글자 수정)
+              </label>
+              <input
+                type="text"
+                value={formData.formProductSelectLabel}
+                onChange={(e) => handleChange('formProductSelectLabel', e.target.value)}
+                placeholder="예: 희망 상품 선택 (또는 희망 가입 상품 선택)"
+                className="w-full p-2.5 rounded-xl border bg-slate-50 focus:bg-white font-bold text-slate-900"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">
+                상담 신청서 및 메인 퀵신청 폼의 상품 선택 드롭다운 상단 라벨에 반영됩니다. (예: '희망 상품 선택', '희망 가입 상품 선택', '가입 희망 요금제 선택' 등)
+              </p>
+            </div>
+
+            {/* Product Dropdown Options Editor */}
+            <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/90 space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                    <List className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <label className="block font-black text-slate-900 text-xs sm:text-sm">
+                      희망 상품 드롭다운 선택 항목 글자 수정 (선택지 목록)
+                    </label>
+                    <p className="text-[11px] text-slate-500">
+                      고객이 상품 선택을 클릭했을 때 펼쳐지는 드롭다운의 각 옵션 문구를 직접 수정, 추가, 삭제할 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleResetProductOptions}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-bold transition-colors"
+                  >
+                    기본값 복원
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddProductOption}
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>항목 추가</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                {formData.formProductOptions.map((opt, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="w-6 text-center text-xs font-black text-slate-400 shrink-0">
+                      {idx + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={opt}
+                      onChange={(e) => handleUpdateProductOption(idx, e.target.value)}
+                      placeholder={`상품 선택지 ${idx + 1} 문구 입력`}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteProductOption(idx)}
+                      disabled={formData.formProductOptions.length <= 1}
+                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors shrink-0"
+                      title="항목 삭제"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-200/60">
+                <p className="text-[11px] text-slate-500">
+                  * 각 항목의 글자를 자유롭게 수정한 후 [드롭다운 목록 즉시 저장]을 누르면 즉시 사이트에 적용됩니다.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateSiteSettings({ formProductOptions: formData.formProductOptions });
+                    showToast('희망 상품 드롭다운 목록이 성공적으로 저장되었습니다.', 'success');
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shrink-0 transition-colors shadow-xs"
+                >
+                  드롭다운 목록 즉시 저장
+                </button>
+              </div>
             </div>
 
             <div>

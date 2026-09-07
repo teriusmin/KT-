@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Sparkles, Gift, CheckCircle, ArrowRight, ShieldCheck, Wifi, Tv, Zap, PhoneCall } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -10,11 +10,21 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
   const { siteSettings, addLead, showToast, setSelectedProductForApply, products } = useApp();
 
+  const productOptions = (siteSettings.formProductOptions && siteSettings.formProductOptions.length > 0)
+    ? siteSettings.formProductOptions
+    : products.map((p) => `${p.name} (사은품 ${p.giftAmount}만원)`);
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(products[0]?.name || '인터넷 500M + Sky All (239채널)');
-  const [agreed, setAgreed] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(productOptions[0] || '인터넷 500M + Sky All (239채널)');
+  const [agreed, setAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (productOptions.length > 0 && !productOptions.includes(selectedProduct)) {
+      setSelectedProduct(productOptions[0]);
+    }
+  }, [productOptions]);
 
   const handleQuickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +65,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
 
       setName('');
       setPhone('');
+      setAgreed(false);
     } catch (err) {
       console.error('Quick submit error:', err);
     } finally {
@@ -219,16 +230,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
                 {/* Preferred Product */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    희망 상품 선택
+                    {siteSettings.formProductSelectLabel || '희망 상품 선택'}
                   </label>
                   <select
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                     className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
                   >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.name}>
-                        {p.name} (사은품 {p.giftAmount}만원)
+                    {productOptions.map((opt, idx) => (
+                      <option key={idx} value={opt}>
+                        {opt}
                       </option>
                     ))}
                   </select>

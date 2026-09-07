@@ -7,15 +7,19 @@ import { PrivacyModal } from './PrivacyModal';
 export const ConsultationForm: React.FC = () => {
   const { products, siteSettings, addLead, showToast, selectedProductForApply, setSelectedProductForApply } = useApp();
 
+  const productOptions = (siteSettings.formProductOptions && siteSettings.formProductOptions.length > 0)
+    ? siteSettings.formProductOptions
+    : products.map((p) => `${p.name} (월 ${p.salePrice.toLocaleString()}원 / 사은품 최대 ${p.giftAmount}만원)`);
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [regionProvince, setRegionProvince] = useState('서울');
   const [regionDetail, setRegionDetail] = useState('');
-  const [productName, setProductName] = useState(products[0]?.name || '인터넷 500M + Sky All (239채널)');
+  const [productName, setProductName] = useState(productOptions[0] || '인터넷 500M + Sky All (239채널)');
   const [preferredTime, setPreferredTime] = useState('언제나 통화 가능');
   const [affiliateCardOption, setAffiliateCardOption] = useState('');
   const [memo, setMemo] = useState('');
-  const [agreed, setAgreed] = useState(true);
+  const [agreed, setAgreed] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,9 +39,16 @@ export const ConsultationForm: React.FC = () => {
   // Sync selected product from state if updated via clicking cards or calculator
   useEffect(() => {
     if (selectedProductForApply) {
-      setProductName(selectedProductForApply.name);
+      const match = productOptions.find(opt => opt.includes(selectedProductForApply.name)) || selectedProductForApply.name;
+      setProductName(match);
     }
-  }, [selectedProductForApply]);
+  }, [selectedProductForApply, productOptions]);
+
+  useEffect(() => {
+    if (productOptions.length > 0 && !productOptions.includes(productName) && !selectedProductForApply) {
+      setProductName(productOptions[0]);
+    }
+  }, [productOptions]);
 
   const provinces = [
     '서울', '경기', '인천', '부산', '대구', '대전', '광주', '울산', '세종',
@@ -102,6 +113,7 @@ export const ConsultationForm: React.FC = () => {
       setMemo('');
       setAffiliateCardOption(cardOpt0);
       setSelectedProductForApply(null);
+      setAgreed(false);
     } catch (err) {
       console.error('Submit lead error:', err);
     } finally {
@@ -212,16 +224,16 @@ export const ConsultationForm: React.FC = () => {
               {/* Desired Product */}
               <div className="md:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  희망 가입 상품 선택
+                  {siteSettings.formProductSelectLabel || '희망 가입 상품 선택'}
                 </label>
                 <select
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
                   className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-600 focus:bg-white"
                 >
-                  {products.map((p) => (
-                    <option key={p.id} value={p.name}>
-                      {p.name} (월 {p.salePrice.toLocaleString()}원 / 사은품 최대 {p.giftAmount}만원)
+                  {productOptions.map((opt, idx) => (
+                    <option key={idx} value={opt}>
+                      {opt}
                     </option>
                   ))}
                 </select>

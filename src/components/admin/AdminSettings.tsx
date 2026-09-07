@@ -63,6 +63,7 @@ export const AdminSettings: React.FC = () => {
   const [footerBadge2, setFooterBadge2] = useState(siteSettings.footerBadge2 || '100% 당일 사은품 지급 보증');
   const [footerNoticeText, setFooterNoticeText] = useState(siteSettings.footerNoticeText || '[안내사항] 본 웹사이트는 KT 스카이라이프 유치 및 가입 상담을 대행하는 공식 온라인 파트너 대리점이며, 모든 상품 및 사은품 정책은 본사 정식 약관에 의거하여 투명하게 운영됩니다.');
   const [footerCopyright, setFooterCopyright] = useState(siteSettings.footerCopyright || '© 2026 KT skylife Partner. All rights reserved.');
+  const [formProductSelectLabel, setFormProductSelectLabel] = useState(siteSettings.formProductSelectLabel || '희망 상품 선택');
 
   useEffect(() => {
     setHeroCard1Title(siteSettings.heroCard1Title || '최대 48만원');
@@ -79,6 +80,7 @@ export const AdminSettings: React.FC = () => {
     setFooterBadge2(siteSettings.footerBadge2 || '100% 당일 사은품 지급 보증');
     setFooterNoticeText(siteSettings.footerNoticeText || '[안내사항] 본 웹사이트는 KT 스카이라이프 유치 및 가입 상담을 대행하는 공식 온라인 파트너 대리점이며, 모든 상품 및 사은품 정책은 본사 정식 약관에 의거하여 투명하게 운영됩니다.');
     setFooterCopyright(siteSettings.footerCopyright || '© 2026 KT skylife Partner. All rights reserved.');
+    setFormProductSelectLabel(siteSettings.formProductSelectLabel || '희망 상품 선택');
   }, [siteSettings]);
 
   const handleSaveSettings = (e: React.FormEvent) => {
@@ -112,7 +114,8 @@ export const AdminSettings: React.FC = () => {
       footerBadge1,
       footerBadge2,
       footerNoticeText,
-      footerCopyright
+      footerCopyright,
+      formProductSelectLabel
     });
     showToast('사이트 및 푸터 문구 설정이 성공적으로 저장되었습니다.', 'success');
   };
@@ -162,54 +165,87 @@ export const AdminSettings: React.FC = () => {
         </button>
       </div>
 
-      {/* Consultation Form Customer Name Setting */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border-2 border-blue-100 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black shrink-0 ${
-            siteSettings.collectCustomerName ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
-          }`}>
-            <Phone className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-black text-slate-900 text-sm">상담 신청서 고객명(성함) 입력란 노출 여부</h3>
-              <span className={`px-2 py-0.5 rounded text-[11px] font-black ${
-                siteSettings.collectCustomerName
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-              }`}>
-                {siteSettings.collectCustomerName ? '현재: 성함 입력 필수' : '현재: 고객명 미사용 (전화번호만 간편 접수)'}
-              </span>
+      {/* Consultation Form Settings (Customer Name & Product Select Label) */}
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border-2 border-blue-100 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black shrink-0 ${
+              siteSettings.collectCustomerName ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
+            }`}>
+              <Phone className="w-5 h-5" />
             </div>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-              {siteSettings.collectCustomerName
-                ? '고객이 웹사이트에서 가입 신청 시 성함과 휴대폰 번호를 모두 입력하도록 활성화되어 있습니다.'
-                : '고객명 입력란을 제거하여 고객이 전화번호만으로 누구나 10초 만에 부담 없이 신청하도록 전환율을 높였습니다.'}
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-slate-900 text-sm">상담 신청서 고객명(성함) 입력란 노출 여부</h3>
+                <span className={`px-2 py-0.5 rounded text-[11px] font-black ${
+                  siteSettings.collectCustomerName
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                }`}>
+                  {siteSettings.collectCustomerName ? '현재: 성함 입력 필수' : '현재: 고객명 미사용 (전화번호만 간편 접수)'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                {siteSettings.collectCustomerName
+                  ? '고객이 웹사이트에서 가입 신청 시 성함과 휴대폰 번호를 모두 입력하도록 활성화되어 있습니다.'
+                  : '고객명 입력란을 제거하여 고객이 전화번호만으로 누구나 10초 만에 부담 없이 신청하도록 전환율을 높였습니다.'}
+              </p>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              const nextVal = !siteSettings.collectCustomerName;
+              updateSiteSettings({ collectCustomerName: nextVal });
+              showToast(
+                nextVal
+                  ? '신청서에 고객명(성함) 입력란이 추가되었습니다.'
+                  : '신청서에서 고객명(성함) 입력란이 삭제되었습니다. (간편 접수 모드)',
+                'success'
+              );
+            }}
+            className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all shrink-0 flex items-center gap-2 shadow-xs ${
+              siteSettings.collectCustomerName
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
+                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${siteSettings.collectCustomerName ? 'bg-slate-400' : 'bg-emerald-300 animate-pulse'}`} />
+            <span>{siteSettings.collectCustomerName ? '고객명 필드 삭제(숨김)하기' : '고객명 필드 추가(노출)하기'}</span>
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            const nextVal = !siteSettings.collectCustomerName;
-            updateSiteSettings({ collectCustomerName: nextVal });
-            showToast(
-              nextVal
-                ? '신청서에 고객명(성함) 입력란이 추가되었습니다.'
-                : '신청서에서 고객명(성함) 입력란이 삭제되었습니다. (간편 접수 모드)',
-              'success'
-            );
-          }}
-          className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all shrink-0 flex items-center gap-2 shadow-xs ${
-            siteSettings.collectCustomerName
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
-              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${siteSettings.collectCustomerName ? 'bg-slate-400' : 'bg-emerald-300 animate-pulse'}`} />
-          <span>{siteSettings.collectCustomerName ? '고객명 필드 삭제(숨김)하기' : '고객명 필드 추가(노출)하기'}</span>
-        </button>
+        {/* Product Select Label Setting */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+          <div className="space-y-1">
+            <label className="block font-black text-slate-900 text-xs">
+              상담 신청 폼 '희망 상품 선택' 글자 문구 (라벨 수정)
+            </label>
+            <p className="text-xs text-slate-500">
+              상담 신청서 및 상단 퀵신청 폼의 상품 선택 드롭다운 위에 노출되는 글자입니다. (기본값: '희망 상품 선택')
+            </p>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-80">
+            <input
+              type="text"
+              value={formProductSelectLabel}
+              onChange={(e) => setFormProductSelectLabel(e.target.value)}
+              placeholder="예: 희망 상품 선택"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white font-bold text-slate-900"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                updateSiteSettings({ formProductSelectLabel });
+                showToast(`상품 선택 글자가 '${formProductSelectLabel}'(으)로 변경되었습니다.`, 'success');
+              }}
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shrink-0 shadow-xs transition-colors"
+            >
+              즉시 반영
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 1. SEO Tools & Search Engine Optimization */}

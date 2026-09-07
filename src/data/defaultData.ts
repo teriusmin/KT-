@@ -139,6 +139,16 @@ export const defaultSiteSettings: SiteSettings = {
 
   // Main Consultation Form Section
   collectCustomerName: false, // 고객명 입력란 일단 미표시 (관리자에서 언제든 토글 가능)
+  formProductSelectLabel: '희망 상품 선택',
+  formProductOptions: [
+    '인터넷 500M + Sky All (239채널) (월 29,700원 / 사은품 최대 45만원)',
+    '인터넷 100M + Sky All (239채널) (월 24,200원 / 사은품 최대 38만원)',
+    '인터넷 1G + Sky All (239채널) (월 34,100원 / 사은품 최대 48만원)',
+    '인터넷 단독 500M (월 22,000원 / 사은품 최대 18만원)',
+    '인터넷 단독 100M (월 17,600원 / 사은품 최대 12만원)',
+    '인터넷 단독 1G (월 27,500원 / 사은품 최대 20만원)',
+    '상담 후 맞춤 상품 추천 희망 (전문 상담원 맞춤설계)'
+  ],
   formSecBadge: '1:1 맞춤 안심 상담',
   formSecTitle: 'KT 스카이라이프',
   formSecHighlight: '온라인 가입 상담 신청서',

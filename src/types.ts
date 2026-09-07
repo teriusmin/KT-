@@ -209,6 +209,8 @@ export interface SiteSettings {
 
   // Main Consultation Form Section
   collectCustomerName?: boolean; // 상담 신청 폼 고객명(성함) 입력 필드 표시 여부 (기본: false - 일단 미표시)
+  formProductSelectLabel?: string; // 상담 신청 폼 '희망 상품 선택' 드롭다운 라벨 문구
+  formProductOptions?: string[]; // 상담 신청 폼 '희망 상품 선택' 드롭다운 선택 항목 목록 (글자 수정)
   formSecBadge?: string;
   formSecTitle?: string;
   formSecHighlight?: string;
