@@ -16,7 +16,35 @@ import {
   defaultFaqs
 } from '../data/defaultData';
 import { db } from '../lib/firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  collection,
+  onSnapshot,
+  getDocs
+} from 'firebase/firestore';
+
+// Recursively sanitize objects and arrays to remove undefined values, preventing Firestore write errors
+export function sanitizeForFirestore<T>(data: T): T {
+  if (data === undefined) {
+    return null as unknown as T;
+  }
+  if (data === null || typeof data !== 'object') {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeForFirestore(item)) as unknown as T;
+  }
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined) {
+      result[key] = sanitizeForFirestore(value);
+    }
+  }
+  return result as T;
+}
 
 interface ToastInfo {
   id: string;
@@ -36,9 +64,10 @@ interface AppContextType {
   deleteProduct: (id: string) => void;
 
   leads: LeadItem[];
-  addLead: (lead: Omit<LeadItem, 'id' | 'createdAt' | 'status'>) => void;
-  updateLead: (id: string, updates: Partial<LeadItem>) => void;
-  deleteLead: (id: string) => void;
+  addLead: (lead: Omit<LeadItem, 'id' | 'createdAt' | 'status'>) => Promise<boolean>;
+  updateLead: (id: string, updates: Partial<LeadItem>) => Promise<void>;
+  deleteLead: (id: string) => Promise<void>;
+  refreshFromCloud: () => Promise<void>;
 
   posts: PostItem[];
   addPost: (post: Omit<PostItem, 'id' | 'date' | 'views'>) => void;
@@ -178,10 +207,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Real-time Firestore Cloud Synchronization
   useEffect(() => {
+    // 1. Subscribe to app_data/config (site settings, products, posts, reviews, faqs, and base leads)
     const configDocRef = doc(db, 'app_data', 'config');
 
-    // Subscribe to real-time changes across instances and sessions
-    const unsubscribe = onSnapshot(configDocRef, (docSnap) => {
+    const unsubscribeConfig = onSnapshot(configDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.siteSettings) {
@@ -192,9 +221,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setProducts(data.products);
           try { localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data.products)); } catch {}
         }
-        if (data.leads && Array.isArray(data.leads)) {
-          setLeads(data.leads);
-          try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(data.leads)); } catch {}
+        if (data.leads && Array.isArray(data.leads) && data.leads.length > 0) {
+          setLeads((prev) => {
+            const map = new Map<string, LeadItem>();
+            prev.forEach((l) => map.set(l.id, l));
+            (data.leads as LeadItem[]).forEach((l) => map.set(l.id, l));
+            const merged = Array.from(map.values());
+            merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+            try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
+            return merged;
+          });
         }
         if (data.posts && Array.isArray(data.posts)) {
           setPosts(data.posts);
@@ -210,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } else {
         // If document doesn't exist yet, seed initial data to Firestore cloud
-        setDoc(configDocRef, {
+        const initialClean = sanitizeForFirestore({
           siteSettings,
           products,
           leads,
@@ -218,13 +254,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           reviews,
           faqs,
           updatedAt: new Date().toISOString()
-        }, { merge: true }).catch((err) => console.error('Cloud init error:', err));
+        });
+        setDoc(configDocRef, initialClean, { merge: true }).catch((err) => console.error('Cloud init error:', err));
       }
     }, (error) => {
-      console.warn('Firestore snapshot listener warning:', error);
+      console.warn('Firestore config snapshot listener warning:', error);
     });
 
-    return () => unsubscribe();
+    // 2. Subscribe to dedicated 'leads' collection (atomic real-time per application submission)
+    const leadsColRef = collection(db, 'leads');
+    const unsubscribeLeads = onSnapshot(leadsColRef, (querySnap) => {
+      if (!querySnap.empty) {
+        const cloudLeads: LeadItem[] = [];
+        querySnap.forEach((d) => {
+          cloudLeads.push(d.data() as LeadItem);
+        });
+        setLeads((prev) => {
+          const map = new Map<string, LeadItem>();
+          prev.forEach((l) => map.set(l.id, l));
+          cloudLeads.forEach((l) => map.set(l.id, l));
+          const merged = Array.from(map.values());
+          merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+          try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
+          return merged;
+        });
+      }
+    }, (err) => {
+      console.warn('Firestore leads collection listener warning:', err);
+    });
+
+    return () => {
+      unsubscribeConfig();
+      unsubscribeLeads();
+    };
   }, []);
 
   // Helper to persist updates directly to Firestore Cloud and LocalStorage
@@ -239,8 +301,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       setSyncStatus('syncing');
       const configDocRef = doc(db, 'app_data', 'config');
+      const cleanUpdates = sanitizeForFirestore(partialUpdates);
       await setDoc(configDocRef, {
-        ...partialUpdates,
+        ...cleanUpdates,
         updatedAt: new Date().toISOString()
       }, { merge: true });
       setSyncStatus('saved');
@@ -335,34 +398,158 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Leads CRUD
-  const addLead = (leadData: Omit<LeadItem, 'id' | 'createdAt' | 'status'>) => {
+  const addLead = async (leadData: Omit<LeadItem, 'id' | 'createdAt' | 'status'>): Promise<boolean> => {
     const now = new Date();
     const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     
     const newLead: LeadItem = {
       ...leadData,
-      id: 'lead-' + Date.now(),
+      id: 'lead-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      name: leadData.name?.trim() || '고객',
       createdAt: formattedDate,
-      status: '접수'
+      status: '접수',
+      memo: leadData.memo || '',
+      affiliateCardOption: leadData.affiliateCardOption || '미신청 (일반 납부)',
+      giftAmountExpected: leadData.giftAmountExpected || 45
     };
-    const updated = [newLead, ...leads];
-    setLeads(updated);
-    persistToCloud({ leads: updated });
-    showToast('가입 상담 신청이 정상 접수되었습니다! 전문 상담사가 곧 연락드립니다.', 'success');
+
+    // Optimistic local state & storage update
+    setLeads((prev) => {
+      const updated = [newLead, ...prev.filter((l) => l.id !== newLead.id)];
+      try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+
+    try {
+      setSyncStatus('syncing');
+      const cleanLead = sanitizeForFirestore(newLead);
+
+      // 1. Save as independent atomic document in dedicated 'leads' collection
+      const leadDocRef = doc(db, 'leads', newLead.id);
+      await setDoc(leadDocRef, cleanLead);
+
+      // 2. Also update 'app_data/config' for cross-session array compatibility
+      const configDocRef = doc(db, 'app_data', 'config');
+      const latestDocSnap = await getDoc(configDocRef);
+      let existingLeads: LeadItem[] = [];
+      if (latestDocSnap.exists()) {
+        const d = latestDocSnap.data();
+        if (Array.isArray(d.leads)) existingLeads = d.leads;
+      }
+      const updatedConfigLeads = sanitizeForFirestore([cleanLead, ...existingLeads.filter((l) => l.id !== newLead.id)]);
+      await setDoc(configDocRef, {
+        leads: updatedConfigLeads,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      setSyncStatus('saved');
+      setTimeout(() => setSyncStatus('idle'), 2500);
+      showToast('가입 상담 신청이 정상 접수되었습니다! 전문 상담사가 곧 연락드립니다.', 'success');
+      return true;
+    } catch (e: any) {
+      console.error('Firestore cloud lead save error:', e);
+      setSyncStatus('idle');
+      // Toast notification confirms receipt even under transient offline state
+      showToast('가입 상담 신청이 접수되었습니다! (로컬 안전 보관 완료)', 'success');
+      return true;
+    }
   };
 
-  const updateLead = (id: string, updates: Partial<LeadItem>) => {
-    const updated = leads.map((l) => (l.id === id ? { ...l, ...updates } : l));
-    setLeads(updated);
-    persistToCloud({ leads: updated });
-    showToast('신청서 상태가 업데이트되었습니다.', 'success');
+  const updateLead = async (id: string, updates: Partial<LeadItem>): Promise<void> => {
+    setLeads((prev) => {
+      const updated = prev.map((l) => (l.id === id ? { ...l, ...updates } : l));
+      try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+
+    try {
+      const cleanUpdates = sanitizeForFirestore(updates);
+      // Update in dedicated collection
+      await setDoc(doc(db, 'leads', id), cleanUpdates, { merge: true });
+
+      // Update in config document
+      const configDocRef = doc(db, 'app_data', 'config');
+      const configSnap = await getDoc(configDocRef);
+      if (configSnap.exists()) {
+        const d = configSnap.data();
+        if (Array.isArray(d.leads)) {
+          const updated = d.leads.map((l: LeadItem) => (l.id === id ? { ...l, ...cleanUpdates } : l));
+          await setDoc(configDocRef, { leads: sanitizeForFirestore(updated) }, { merge: true });
+        }
+      }
+      showToast('신청서 상태가 업데이트되었습니다.', 'success');
+    } catch (e) {
+      console.error('Update lead error:', e);
+    }
   };
 
-  const deleteLead = (id: string) => {
-    const updated = leads.filter((l) => l.id !== id);
-    setLeads(updated);
-    persistToCloud({ leads: updated });
-    showToast('신청 내역이 삭제되었습니다.', 'info');
+  const deleteLead = async (id: string): Promise<void> => {
+    setLeads((prev) => {
+      const updated = prev.filter((l) => l.id !== id);
+      try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+
+    try {
+      await deleteDoc(doc(db, 'leads', id));
+      const configDocRef = doc(db, 'app_data', 'config');
+      const configSnap = await getDoc(configDocRef);
+      if (configSnap.exists()) {
+        const d = configSnap.data();
+        if (Array.isArray(d.leads)) {
+          const updated = d.leads.filter((l: LeadItem) => l.id !== id);
+          await setDoc(configDocRef, { leads: sanitizeForFirestore(updated) }, { merge: true });
+        }
+      }
+      showToast('신청 내역이 삭제되었습니다.', 'info');
+    } catch (e) {
+      console.error('Delete lead error:', e);
+    }
+  };
+
+  const refreshFromCloud = async (): Promise<void> => {
+    setSyncStatus('syncing');
+    try {
+      const cloudLeads: LeadItem[] = [];
+
+      // 1. Fetch from 'leads' collection
+      const leadsCol = collection(db, 'leads');
+      const querySnap = await getDocs(leadsCol);
+      querySnap.forEach((d) => {
+        cloudLeads.push(d.data() as LeadItem);
+      });
+
+      // 2. Fetch from config document
+      const configDocRef = doc(db, 'app_data', 'config');
+      const configSnap = await getDoc(configDocRef);
+      if (configSnap.exists()) {
+        const data = configSnap.data();
+        if (data.siteSettings) setSiteSettings(data.siteSettings);
+        if (Array.isArray(data.products)) setProducts(data.products);
+        if (Array.isArray(data.posts)) setPosts(data.posts);
+        if (Array.isArray(data.reviews)) setReviews(data.reviews);
+        if (Array.isArray(data.faqs)) setFaqs(data.faqs);
+        if (Array.isArray(data.leads)) {
+          data.leads.forEach((l: LeadItem) => cloudLeads.push(l));
+        }
+      }
+
+      // Merge and deduplicate
+      const map = new Map<string, LeadItem>();
+      cloudLeads.forEach((l) => map.set(l.id, l));
+      const merged = Array.from(map.values());
+      merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+      setLeads(merged);
+      try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
+
+      setSyncStatus('saved');
+      setTimeout(() => setSyncStatus('idle'), 2500);
+      showToast(`클라우드 최신 데이터와 동기화되었습니다! (총 ${merged.length}건)`, 'success');
+    } catch (e: any) {
+      console.error('Refresh from cloud error:', e);
+      setSyncStatus('idle');
+      showToast('데이터 새로고침 실패: ' + (e?.message || '네트워크 오류'), 'error');
+    }
   };
 
   // Posts CRUD
@@ -553,7 +740,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         resetToDefaultData,
         exportDataJson,
         importDataJson,
-        syncStatus
+        syncStatus,
+        refreshFromCloud
       }}
     >
       {children}

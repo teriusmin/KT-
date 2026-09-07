@@ -138,6 +138,7 @@ export const defaultSiteSettings: SiteSettings = {
   productSecSubtitle: 'KT 100% 동일망 인터넷과 239개 채널 UHD TV를 결합하여 매월 통신비를 아끼고 당일 현금 혜택까지 누리세요.',
 
   // Main Consultation Form Section
+  collectCustomerName: false, // 고객명 입력란 일단 미표시 (관리자에서 언제든 토글 가능)
   formSecBadge: '1:1 맞춤 안심 상담',
   formSecTitle: 'KT 스카이라이프',
   formSecHighlight: '온라인 가입 상담 신청서',

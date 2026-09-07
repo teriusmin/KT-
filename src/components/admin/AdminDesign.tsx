@@ -85,6 +85,7 @@ export const AdminDesign: React.FC = () => {
     productSecSubtitle: siteSettings.productSecSubtitle || 'KT 100% 동일망 인터넷과 239개 채널 UHD TV를 결합하여 매월 통신비를 아끼고 당일 현금 혜택까지 누리세요.',
 
     // Form Section
+    collectCustomerName: siteSettings.collectCustomerName ?? false,
     formSecBadge: siteSettings.formSecBadge || '1:1 맞춤 안심 상담',
     formSecTitle: siteSettings.formSecTitle || 'KT 스카이라이프',
     formSecHighlight: siteSettings.formSecHighlight || '온라인 가입 상담 신청서',
@@ -122,7 +123,7 @@ export const AdminDesign: React.FC = () => {
     }));
   }, [siteSettings]);
 
-  const handleChange = (key: keyof typeof formData, value: string) => {
+  const handleChange = (key: keyof typeof formData, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [key]: value
@@ -901,6 +902,43 @@ export const AdminDesign: React.FC = () => {
           </div>
 
           <div className="space-y-4 text-xs">
+            {/* Customer Name Field Toggle Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-slate-50 border-2 border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-black ${formData.collectCustomerName ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                    {formData.collectCustomerName ? '고객명 필드 활성화됨' : '고객명 필드 숨김 (간편 접수 모드)'}
+                  </span>
+                  <span className="font-black text-slate-900 text-sm">상담 신청서 고객명(성함) 입력란 설정</span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {formData.collectCustomerName
+                    ? '현재 고객이 신청 시 성함을 필수로 입력해야 합니다. (이름 수집 ON)'
+                    : '현재 고객명 입력란이 숨김 처리되어 있어, 고객이 전화번호만으로 즉시 신청할 수 있습니다. (전환율 극대화 OFF)'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextVal = !formData.collectCustomerName;
+                    handleChange('collectCustomerName', nextVal);
+                    updateSiteSettings({ collectCustomerName: nextVal });
+                    showToast(nextVal ? '고객명 입력란이 활성화되었습니다.' : '고객명 입력란이 숨김 처리되었습니다. (전화번호만 접수)', 'success');
+                  }}
+                  className={`px-4 py-2.5 rounded-xl font-black text-xs transition-all shadow-sm flex items-center gap-2 ${
+                    formData.collectCustomerName
+                      ? 'bg-blue-600 text-white hover:bg-blue-500 shadow-blue-500/25'
+                      : 'bg-slate-800 text-white hover:bg-slate-700'
+                  }`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${formData.collectCustomerName ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+                  {formData.collectCustomerName ? '고객명 삭제(숨김)하기' : '고객명 입력란 추가(노출)하기'}
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">폼 상단 뱃지</label>

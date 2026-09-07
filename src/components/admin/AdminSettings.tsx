@@ -162,6 +162,56 @@ export const AdminSettings: React.FC = () => {
         </button>
       </div>
 
+      {/* Consultation Form Customer Name Setting */}
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border-2 border-blue-100 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black shrink-0 ${
+            siteSettings.collectCustomerName ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
+          }`}>
+            <Phone className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-black text-slate-900 text-sm">상담 신청서 고객명(성함) 입력란 노출 여부</h3>
+              <span className={`px-2 py-0.5 rounded text-[11px] font-black ${
+                siteSettings.collectCustomerName
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+              }`}>
+                {siteSettings.collectCustomerName ? '현재: 성함 입력 필수' : '현재: 고객명 미사용 (전화번호만 간편 접수)'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              {siteSettings.collectCustomerName
+                ? '고객이 웹사이트에서 가입 신청 시 성함과 휴대폰 번호를 모두 입력하도록 활성화되어 있습니다.'
+                : '고객명 입력란을 제거하여 고객이 전화번호만으로 누구나 10초 만에 부담 없이 신청하도록 전환율을 높였습니다.'}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            const nextVal = !siteSettings.collectCustomerName;
+            updateSiteSettings({ collectCustomerName: nextVal });
+            showToast(
+              nextVal
+                ? '신청서에 고객명(성함) 입력란이 추가되었습니다.'
+                : '신청서에서 고객명(성함) 입력란이 삭제되었습니다. (간편 접수 모드)',
+              'success'
+            );
+          }}
+          className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all shrink-0 flex items-center gap-2 shadow-xs ${
+            siteSettings.collectCustomerName
+              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
+              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full ${siteSettings.collectCustomerName ? 'bg-slate-400' : 'bg-emerald-300 animate-pulse'}`} />
+          <span>{siteSettings.collectCustomerName ? '고객명 필드 삭제(숨김)하기' : '고객명 필드 추가(노출)하기'}</span>
+        </button>
+      </div>
+
       {/* 1. SEO Tools & Search Engine Optimization */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center gap-2">

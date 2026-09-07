@@ -208,6 +208,7 @@ export interface SiteSettings {
   productSecSubtitle?: string;
 
   // Main Consultation Form Section
+  collectCustomerName?: boolean; // 상담 신청 폼 고객명(성함) 입력 필드 표시 여부 (기본: false - 일단 미표시)
   formSecBadge?: string;
   formSecTitle?: string;
   formSecHighlight?: string;

@@ -52,10 +52,10 @@ export const ConsultationForm: React.FC = () => {
     '저녁 18:00 이후'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
+    if (siteSettings.collectCustomerName && !name.trim()) {
       showToast('성함을 입력해 주세요.', 'error');
       return;
     }
@@ -74,14 +74,14 @@ export const ConsultationForm: React.FC = () => {
     const matchedProduct = products.find((p) => p.name === productName);
     const expectedGift = matchedProduct ? matchedProduct.giftAmount : 45;
 
-    setTimeout(() => {
-      addLead({
-        name: name.trim(),
+    try {
+      await addLead({
+        name: siteSettings.collectCustomerName ? name.trim() : '고객',
         phone: phone.trim(),
         region: fullRegion,
         productName,
         preferredTime,
-        memo: memo.trim() ? memo.trim() : undefined,
+        memo: memo.trim() || '',
         giftAmountExpected: expectedGift,
         affiliateCardOption: affiliateCardOption || cardOpt0
       });
@@ -102,8 +102,11 @@ export const ConsultationForm: React.FC = () => {
       setMemo('');
       setAffiliateCardOption(cardOpt0);
       setSelectedProductForApply(null);
+    } catch (err) {
+      console.error('Submit lead error:', err);
+    } finally {
       setIsSubmitting(false);
-    }, 450);
+    }
   };
 
   return (
@@ -128,23 +131,25 @@ export const ConsultationForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
-              {/* Name */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  고객 성명 <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="예: 홍길동"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
-                />
-              </div>
+              {/* Name (Admin-configurable) */}
+              {siteSettings.collectCustomerName && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    고객 성명 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required={siteSettings.collectCustomerName}
+                    placeholder="예: 홍길동"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+                  />
+                </div>
+              )}
 
               {/* Phone */}
-              <div>
+              <div className={siteSettings.collectCustomerName ? '' : 'col-span-1 md:col-span-2'}>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   연락처 (휴대폰 번호) <span className="text-rose-500">*</span>
                 </label>
@@ -156,6 +161,11 @@ export const ConsultationForm: React.FC = () => {
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
                 />
+                {!siteSettings.collectCustomerName && (
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    ※ 성함 입력 없이 전화번호만으로 신속한 1:1 비대면 상담이 접수됩니다.
+                  </p>
+                )}
               </div>
 
               {/* Installation Region */}

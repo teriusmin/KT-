@@ -16,9 +16,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
   const [agreed, setAgreed] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleQuickSubmit = (e: React.FormEvent) => {
+  const handleQuickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    if (siteSettings.collectCustomerName && !name.trim()) {
       showToast('성함을 입력해 주세요.', 'error');
       return;
     }
@@ -32,9 +32,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      addLead({
-        name: name.trim(),
+    try {
+      await addLead({
+        name: siteSettings.collectCustomerName ? name.trim() : '고객',
         phone: phone.trim(),
         region: '온라인 빠른접수',
         productName: selectedProduct,
@@ -55,8 +55,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
 
       setName('');
       setPhone('');
+    } catch (err) {
+      console.error('Quick submit error:', err);
+    } finally {
       setIsSubmitting(false);
-    }, 400);
+    }
   };
 
   return (
@@ -181,20 +184,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
               </div>
 
               <form onSubmit={handleQuickSubmit} className="space-y-3 sm:space-y-4">
-                {/* Name Field */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    고객명 <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="홍길동"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
-                  />
-                </div>
+                {/* Name Field (Conditionally displayed via Admin toggle) */}
+                {siteSettings.collectCustomerName && (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      고객명 <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required={siteSettings.collectCustomerName}
+                      placeholder="홍길동"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+                    />
+                  </div>
+                )}
 
                 {/* Phone Field */}
                 <div>

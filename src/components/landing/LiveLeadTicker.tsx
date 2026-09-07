@@ -12,13 +12,23 @@ export const LiveLeadTicker: React.FC = () => {
     { name: '이*진', region: '경기 수원시', product: '인터넷 500M + TV', benefit: '상담예약 접수완료', time: '25분 전' },
     { name: '최*민', region: '부산 해운대구', product: '스카이라이프 결합', benefit: '현금 45만원 당일지급', time: '40분 전' },
     { name: '정*우', region: '대전 유성구', product: '인터넷 단독 500M', benefit: '사은품 18만원 지급완료', time: '1시간 전' },
-    ...leads.slice(0, 4).map((l) => ({
-      name: l.name,
-      region: l.region.split(' ').slice(0, 2).join(' ') || '전국',
-      product: l.productName,
-      benefit: l.status === '개통완료' ? '개통 및 사은품 전액 지급완료' : '가입상담 접수완료',
-      time: '오늘'
-    }))
+    ...leads.slice(0, 4).map((l) => {
+      let displayName = '고객';
+      if (l.name && l.name !== '고객') {
+        displayName = l.name.length > 2 
+          ? l.name[0] + '*' + l.name.slice(2)
+          : l.name[0] + '*';
+      } else if (l.phone && l.phone.length >= 4) {
+        displayName = `${l.phone.slice(-4)}번`;
+      }
+      return {
+        name: displayName,
+        region: l.region.split(' ').slice(0, 2).join(' ') || '전국',
+        product: l.productName,
+        benefit: l.status === '개통완료' ? '개통 및 사은품 전액 지급완료' : '가입상담 접수완료',
+        time: '오늘'
+      };
+    })
   ];
 
   return (
