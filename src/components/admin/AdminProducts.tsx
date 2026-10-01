@@ -113,7 +113,7 @@ export const AdminProducts: React.FC = () => {
       return;
     }
 
-    const featuresArray = featuresText
+    const featuresArray = (featuresText || '')
       .split('\n')
       .map((f) => f.trim())
       .filter((f) => f.length > 0);

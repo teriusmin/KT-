@@ -40,7 +40,7 @@ export const AdminDashboard: React.FC = () => {
             KT 스카이라이프 가입센터 관리자 포털
           </h2>
           <p className="text-blue-100 text-xs sm:text-sm max-w-xl">
-            가입 신청 고객 상담 내역, 요금제 및 사은품 혜택, 공지/이벤트 게시글, SEO 메타 정보를 실시간으로 관리하세요.
+            상담 신청 고객 내역, 요금제 및 사은품 혜택, 공지/이벤트 게시글, SEO 메타 정보를 실시간으로 관리하세요.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-500">총 가입신청 접수</span>
+            <span className="text-xs font-bold text-slate-500">총 상담신청 접수</span>
             <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <Users className="w-5 h-5" />
             </div>
@@ -127,7 +127,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-black text-lg text-slate-900">
-                최근 가입 신청 현황
+                최근 상담 신청 현황
               </h3>
               <p className="text-xs text-slate-500">
                 고객님이 랜딩페이지에서 신청한 실시간 접수 목록입니다.

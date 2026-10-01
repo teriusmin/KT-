@@ -84,7 +84,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({ post, onClose,
             }}
             className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-500/20"
           >
-            <span>가입 상담 바로 신청</span>
+            <span>상담 바로 신청</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

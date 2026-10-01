@@ -444,13 +444,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       setSyncStatus('saved');
       setTimeout(() => setSyncStatus('idle'), 2500);
-      showToast('가입 상담 신청이 정상 접수되었습니다! 전문 상담사가 곧 연락드립니다.', 'success');
+      showToast('상담 신청이 정상 접수되었습니다! 전문 상담사가 곧 연락드립니다.', 'success');
       return true;
     } catch (e: any) {
       console.error('Firestore cloud lead save error:', e);
       setSyncStatus('idle');
       // Toast notification confirms receipt even under transient offline state
-      showToast('가입 상담 신청이 접수되었습니다! (로컬 안전 보관 완료)', 'success');
+      showToast('상담 신청이 접수되었습니다! (로컬 안전 보관 완료)', 'success');
       return true;
     }
   };

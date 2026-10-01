@@ -53,7 +53,7 @@ export const AdminDesign: React.FC = () => {
     heroCard3Desc: siteSettings.heroCard3Desc || '안드로이드4 OTT 셋톱',
     heroCard4Title: siteSettings.heroCard4Title || '공식 파트너 인증',
     heroCard4Desc: siteSettings.heroCard4Desc || '안심 개통 및 보증제',
-    heroFormBadge: siteSettings.heroFormBadge || '30초 빠른 가입상담 신청',
+    heroFormBadge: siteSettings.heroFormBadge || '30초 빠른 상담신청',
     heroFormTitle: siteSettings.heroFormTitle || '전화번호만 남기시면 끝!',
     heroFormSubtitle: siteSettings.heroFormSubtitle || '전문 상담사가 10분 내로 최적의 결합 할인과 최대 사은품을 안내해 드립니다.',
     heroFormBtnText: siteSettings.heroFormBtnText || '최대 사은품 혜택 상담 신청하기',
@@ -101,9 +101,9 @@ export const AdminDesign: React.FC = () => {
     ],
     formSecBadge: siteSettings.formSecBadge || '1:1 맞춤 안심 상담',
     formSecTitle: siteSettings.formSecTitle || 'KT 스카이라이프',
-    formSecHighlight: siteSettings.formSecHighlight || '온라인 가입 상담 신청서',
+    formSecHighlight: siteSettings.formSecHighlight || '온라인 상담 신청서',
     formSecSubtitle: siteSettings.formSecSubtitle || '간단한 정보를 남겨주시면 담당 전문 플래너가 가장 높은 혜택과 맞춤 사은품을 안내해 드립니다.',
-    formSubmitBtnText: siteSettings.formSubmitBtnText || '최대 현금 사은품 가입 상담 신청 완료하기',
+    formSubmitBtnText: siteSettings.formSubmitBtnText || '최대 현금 사은품 상담 신청 완료하기',
 
     // Review / FAQ / Board / Ticker
     reviewSecBadge: siteSettings.reviewSecBadge || '고객 감동 리얼 후기',
@@ -213,7 +213,7 @@ export const AdminDesign: React.FC = () => {
     { id: 'hero', label: '1. 메인 히어로 & 배너', icon: Zap },
     { id: 'why', label: '2. 4대 특장점 섹션', icon: Sparkles },
     { id: 'product', label: '3. 요금제 비교 섹션', icon: FileSpreadsheet },
-    { id: 'form', label: '4. 가입상담 신청서', icon: Type },
+    { id: 'form', label: '4. 온라인 상담 신청서', icon: Type },
     { id: 'community', label: '5. 후기 / FAQ / 공지', icon: Newspaper },
     { id: 'brand', label: '6. 브랜드 & 테마 컬러', icon: Palette },
     { id: 'footer', label: '7. 푸터(맨 밑) 문구', icon: ShieldCheck },
@@ -947,7 +947,7 @@ export const AdminDesign: React.FC = () => {
                 <Type className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-black text-slate-900 text-base">4. 온라인 가입 상담 신청서 섹션 문구</h3>
+                <h3 className="font-black text-slate-900 text-base">4. 온라인 상담 신청서 섹션 문구</h3>
                 <p className="text-xs text-slate-500">고객이 성명과 연락처를 입력하는 메인 신청서 폼 상단의 타이틀 및 버튼 문구입니다.</p>
               </div>
             </div>

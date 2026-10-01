@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onScrollTo, onRequestAdmin }) =>
           <div className="flex items-center gap-3">
             {/* Direct Phone Call Button */}
             <a
-              href={`tel:${siteSettings.phoneNumber.replace(/[^0-9]/g, '')}`}
+              href={`tel:${(siteSettings?.phoneNumber || '').replace(/[^0-9]/g, '')}`}
               className="hidden sm:flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-sm border border-blue-200 transition-all"
             >
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center animate-pulse">
@@ -153,7 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onScrollTo, onRequestAdmin }) =>
 
           <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
             <a
-              href={`tel:${siteSettings.phoneNumber.replace(/[^0-9]/g, '')}`}
+              href={`tel:${(siteSettings?.phoneNumber || '').replace(/[^0-9]/g, '')}`}
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm border border-blue-200"
             >
               <PhoneCall className="w-4 h-4 text-blue-600" />

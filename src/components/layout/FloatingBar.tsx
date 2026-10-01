@@ -46,7 +46,7 @@ export const FloatingBar: React.FC<FloatingBarProps> = ({ onScrollTo }) => {
           <div className="flex-1 md:flex-initial flex items-center justify-end gap-2">
             {/* Direct Phone Call */}
             <a
-              href={`tel:${siteSettings.phoneNumber.replace(/[^0-9]/g, '')}`}
+              href={`tel:${(siteSettings?.phoneNumber || '').replace(/[^0-9]/g, '')}`}
               className="flex-1 sm:flex-initial px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm transition-transform active:scale-95 whitespace-nowrap"
             >
               <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
@@ -59,7 +59,7 @@ export const FloatingBar: React.FC<FloatingBarProps> = ({ onScrollTo }) => {
               className="flex-1 sm:flex-initial px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm shadow-md shadow-blue-600/30 flex items-center justify-center gap-1.5 transition-transform active:scale-95 animate-pulse whitespace-nowrap"
             >
               <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-300" />
-              <span>가입신청</span>
+              <span>상담신청</span>
             </button>
           </div>
         </div>

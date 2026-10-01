@@ -134,7 +134,7 @@ export const ConsultationForm: React.FC = () => {
             </div>
             <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
               {siteSettings.formSecTitle || 'KT 스카이라이프'}{' '}
-              <span className="text-blue-600">{siteSettings.formSecHighlight || '온라인 가입 상담 신청서'}</span>
+              <span className="text-blue-600">{siteSettings.formSecHighlight || '온라인 상담 신청서'}</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg mx-auto">
               {siteSettings.formSecSubtitle || '간단한 정보를 남겨주시면 담당 전문 플래너가 가장 높은 혜택과 맞춤 사은품을 안내해 드립니다.'}
@@ -336,7 +336,7 @@ export const ConsultationForm: React.FC = () => {
               className="w-full py-3.5 sm:py-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-black text-sm sm:text-lg shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-75"
             >
               <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
-              <span>{isSubmitting ? '접수 처리 중...' : (siteSettings.formSubmitBtnText || '최대 현금 사은품 가입 상담 신청 완료하기')}</span>
+              <span>{isSubmitting ? '접수 처리 중...' : (siteSettings.formSubmitBtnText || '최대 현금 사은품 상담 신청 완료하기')}</span>
             </button>
 
             {/* Security Guarantee Notice */}

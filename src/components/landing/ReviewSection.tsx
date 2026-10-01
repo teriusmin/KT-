@@ -76,7 +76,7 @@ export const ReviewSection: React.FC = () => {
                   <div className="text-[10px] sm:text-[11px] text-slate-400">{rev.region}</div>
                 </div>
                 <span className="text-[10px] sm:text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded truncate max-w-[120px]">
-                  {rev.productName.split('+')[0]}
+                  {(rev.productName || '인터넷+TV').split('+')[0]}
                 </span>
               </div>
             </div>

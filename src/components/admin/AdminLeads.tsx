@@ -80,7 +80,7 @@ export const AdminLeads: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `KT스카이라이프_가입신청자_목록_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `KT스카이라이프_상담신청자_목록_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -128,7 +128,7 @@ export const AdminLeads: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-              가입 신청 고객 관리
+              상담 신청 고객 관리
             </h2>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

@@ -103,7 +103,7 @@ export const defaultSiteSettings: SiteSettings = {
   heroCard4Desc: '안심 개통 및 보증제',
 
   // Main Screen Hero Quick Apply Box
-  heroFormBadge: '30초 빠른 가입상담 신청',
+  heroFormBadge: '30초 빠른 상담신청',
   heroFormTitle: '전화번호만 남기시면 끝!',
   heroFormSubtitle: '전문 상담사가 10분 내로 최적의 결합 할인과 최대 사은품을 안내해 드립니다.',
   heroFormBtnText: '최대 사은품 혜택 상담 신청하기',
@@ -151,9 +151,9 @@ export const defaultSiteSettings: SiteSettings = {
   ],
   formSecBadge: '1:1 맞춤 안심 상담',
   formSecTitle: 'KT 스카이라이프',
-  formSecHighlight: '온라인 가입 상담 신청서',
+  formSecHighlight: '온라인 상담 신청서',
   formSecSubtitle: '간단한 정보를 남겨주시면 담당 전문 플래너가 가장 높은 혜택과 맞춤 사은품을 안내해 드립니다.',
-  formSubmitBtnText: '최대 사은품 혜택으로 가입 상담 신청하기',
+  formSubmitBtnText: '최대 사은품 혜택으로 상담 신청하기',
 
   // Review Section
   reviewSecBadge: '고객 감동 리얼 후기',

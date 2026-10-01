@@ -182,7 +182,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollTo }) => {
               {/* Top Banner Tag */}
               <div className="absolute -top-3.5 left-6 sm:left-8 px-3.5 py-1 rounded-full bg-gradient-to-r from-blue-600 to-sky-600 text-white text-[11px] sm:text-xs font-black shadow-md uppercase tracking-wider flex items-center gap-1.5">
                 <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-300 fill-yellow-300" />
-                <span>{siteSettings.heroFormBadge || '30초 빠른 가입상담 신청'}</span>
+                <span>{siteSettings.heroFormBadge || '30초 빠른 상담신청'}</span>
               </div>
 
               <div className="mb-4 sm:mb-6 pt-1 sm:pt-2">

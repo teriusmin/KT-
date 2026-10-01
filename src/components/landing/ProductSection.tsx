@@ -215,7 +215,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({ onSelectProductT
                         : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
                     }`}
                   >
-                    <span>이 상품으로 가입 상담 신청</span>
+                    <span>이 상품으로 상담 신청</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 

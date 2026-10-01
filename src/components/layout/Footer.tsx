@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ onScrollTo, onRequestAdmin }) =>
               {siteSettings.footerPhoneTitle || '가입 및 요금 상담 직통 센터'}
             </div>
             <a
-              href={`tel:${siteSettings.phoneNumber.replace(/[^0-9]/g, '')}`}
+              href={`tel:${(siteSettings?.phoneNumber || '').replace(/[^0-9]/g, '')}`}
               className="text-2xl sm:text-3xl font-black text-white hover:text-blue-400 transition-colors flex items-center gap-2"
             >
               <Phone className="w-6 h-6 text-blue-500" />

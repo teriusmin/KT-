@@ -25,7 +25,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const navTabs = [
     { id: 'dashboard', label: '대시보드 요약', icon: LayoutDashboard },
-    { id: 'leads', label: '가입신청 관리', icon: Users, badge: newLeadsCount > 0 ? newLeadsCount : undefined },
+    { id: 'leads', label: '상담신청 관리', icon: Users, badge: newLeadsCount > 0 ? newLeadsCount : undefined },
     { id: 'cards', label: '4대 혜택 카드 설정', icon: Gift },
     { id: 'products', label: '상품/요금제 설정', icon: Package },
     { id: 'design', label: '메인화면 문구 & 디자인', icon: Palette },

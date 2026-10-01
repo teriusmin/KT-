@@ -803,10 +803,10 @@ export const AdminSimulatorSettings: React.FC = () => {
           <div>
             <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-emerald-600" />
-              <span>온라인 가입 상담 신청서 - 제휴카드 신청 옵션 문구 설정</span>
+              <span>온라인 상담 신청서 - 제휴카드 신청 옵션 문구 설정</span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              랜딩페이지 하단 [온라인 가입 상담 신청서]에 노출되는 제휴카드 신청 옵션 문구를 직접 수정할 수 있습니다.
+              랜딩페이지 하단 [온라인 상담 신청서]에 노출되는 제휴카드 신청 옵션 문구를 직접 수정할 수 있습니다.
             </p>
           </div>
         </div>

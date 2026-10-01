@@ -187,7 +187,7 @@ export const AdminSettings: React.FC = () => {
               </div>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                 {siteSettings.collectCustomerName
-                  ? '고객이 웹사이트에서 가입 신청 시 성함과 휴대폰 번호를 모두 입력하도록 활성화되어 있습니다.'
+                  ? '고객이 웹사이트에서 상담 신청 시 성함과 휴대폰 번호를 모두 입력하도록 활성화되어 있습니다.'
                   : '고객명 입력란을 제거하여 고객이 전화번호만으로 누구나 10초 만에 부담 없이 신청하도록 전환율을 높였습니다.'}
               </p>
             </div>
