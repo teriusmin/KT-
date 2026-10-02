@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   ProductItem,
   LeadItem,
@@ -68,6 +68,7 @@ interface AppContextType {
   updateLead: (id: string, updates: Partial<LeadItem>) => Promise<void>;
   deleteLead: (id: string) => Promise<void>;
   refreshFromCloud: () => Promise<void>;
+  resetSampleLeads: () => Promise<void>;
 
   posts: PostItem[];
   addPost: (post: Omit<PostItem, 'id' | 'date' | 'views'>) => void;
@@ -204,6 +205,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [adminTab, setAdminTab] = useState<'dashboard' | 'leads' | 'posts' | 'products' | 'cards' | 'design' | 'footer' | 'settings'>('dashboard');
   const [selectedProductForApply, setSelectedProductForApply] = useState<ProductItem | null>(null);
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
+  const deletedLeadIdsRef = useRef<Set<string>>(new Set());
 
   // Real-time Firestore Cloud Synchronization
   useEffect(() => {
@@ -221,11 +223,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setProducts(data.products);
           try { localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data.products)); } catch {}
         }
-        if (data.leads && Array.isArray(data.leads) && data.leads.length > 0) {
+        if (data.leads && Array.isArray(data.leads)) {
           setLeads((prev) => {
             const map = new Map<string, LeadItem>();
-            prev.forEach((l) => map.set(l.id, l));
-            (data.leads as LeadItem[]).forEach((l) => map.set(l.id, l));
+            prev.forEach((l) => {
+              if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
+            });
+            (data.leads as LeadItem[]).forEach((l) => {
+              if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
+            });
             const merged = Array.from(map.values());
             merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
             try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
@@ -264,21 +270,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // 2. Subscribe to dedicated 'leads' collection (atomic real-time per application submission)
     const leadsColRef = collection(db, 'leads');
     const unsubscribeLeads = onSnapshot(leadsColRef, (querySnap) => {
-      if (!querySnap.empty) {
-        const cloudLeads: LeadItem[] = [];
-        querySnap.forEach((d) => {
-          cloudLeads.push(d.data() as LeadItem);
+      const cloudLeads: LeadItem[] = [];
+      querySnap.forEach((d) => {
+        const item = d.data() as LeadItem;
+        if (!deletedLeadIdsRef.current.has(item.id)) {
+          cloudLeads.push(item);
+        }
+      });
+      setLeads((prev) => {
+        const map = new Map<string, LeadItem>();
+        prev.forEach((l) => {
+          if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
         });
-        setLeads((prev) => {
-          const map = new Map<string, LeadItem>();
-          prev.forEach((l) => map.set(l.id, l));
-          cloudLeads.forEach((l) => map.set(l.id, l));
-          const merged = Array.from(map.values());
-          merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
-          try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
-          return merged;
+        cloudLeads.forEach((l) => {
+          if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
         });
-      }
+        const merged = Array.from(map.values());
+        merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+        try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
+        return merged;
+      });
     }, (err) => {
       console.warn('Firestore leads collection listener warning:', err);
     });
@@ -484,6 +495,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteLead = async (id: string): Promise<void> => {
+    deletedLeadIdsRef.current.add(id);
     setLeads((prev) => {
       const updated = prev.filter((l) => l.id !== id);
       try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(updated)); } catch {}
@@ -501,9 +513,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           await setDoc(configDocRef, { leads: sanitizeForFirestore(updated) }, { merge: true });
         }
       }
-      showToast('신청 내역이 삭제되었습니다.', 'info');
+      showToast('신청 내역이 안전하게 삭제되었습니다.', 'info');
     } catch (e) {
       console.error('Delete lead error:', e);
+    }
+  };
+
+  const resetSampleLeads = async (): Promise<void> => {
+    deletedLeadIdsRef.current.clear();
+    setLeads(defaultLeads);
+    try {
+      localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(defaultLeads));
+      await persistToCloud({ leads: defaultLeads });
+      showToast('기본 샘플 상담 신청 데이터가 성공적으로 복원되었습니다.', 'success');
+    } catch {
+      showToast('기본 샘플 데이터가 로컬에 복원되었습니다.', 'info');
     }
   };
 
@@ -516,7 +540,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const leadsCol = collection(db, 'leads');
       const querySnap = await getDocs(leadsCol);
       querySnap.forEach((d) => {
-        cloudLeads.push(d.data() as LeadItem);
+        const item = d.data() as LeadItem;
+        if (!deletedLeadIdsRef.current.has(item.id)) {
+          cloudLeads.push(item);
+        }
       });
 
       // 2. Fetch from config document
@@ -530,7 +557,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (Array.isArray(data.reviews)) setReviews(data.reviews);
         if (Array.isArray(data.faqs)) setFaqs(data.faqs);
         if (Array.isArray(data.leads)) {
-          data.leads.forEach((l: LeadItem) => cloudLeads.push(l));
+          data.leads.forEach((l: LeadItem) => {
+            if (!deletedLeadIdsRef.current.has(l.id)) {
+              cloudLeads.push(l);
+            }
+          });
         }
       }
 
@@ -741,7 +772,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         exportDataJson,
         importDataJson,
         syncStatus,
-        refreshFromCloud
+        refreshFromCloud,
+        resetSampleLeads
       }}
     >
       {children}

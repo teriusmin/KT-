@@ -11,11 +11,13 @@ import {
   ArrowRight,
   TrendingUp,
   ShieldCheck,
-  Building
+  Building,
+  Trash2,
+  Edit3
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
-  const { leads, posts, products, setAdminTab, updateLead } = useApp();
+  const { leads = [], posts, products, setAdminTab, updateLead, deleteLead } = useApp();
 
   const totalLeads = leads.length;
   const pendingLeads = leads.filter((l) => l.status === '접수').length;
@@ -151,37 +153,68 @@ export const AdminDashboard: React.FC = () => {
                   <th className="py-3 px-3">연락처</th>
                   <th className="py-3 px-3">희망상품</th>
                   <th className="py-3 px-3">상태</th>
+                  <th className="py-3 px-3 text-center">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {leads.slice(0, 5).map((lead) => (
-                  <tr key={lead.id} className="hover:bg-slate-50/80">
-                    <td className="py-3 px-3 text-slate-500 whitespace-nowrap">{lead.createdAt}</td>
-                    <td className="py-3 px-3 font-bold text-slate-900 whitespace-nowrap">{lead.name}</td>
-                    <td className="py-3 px-3 text-slate-700 font-medium whitespace-nowrap">{lead.phone}</td>
-                    <td className="py-3 px-3 text-slate-600 max-w-[180px] truncate">{lead.productName}</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <select
-                        value={lead.status}
-                        onChange={(e) => updateLead(lead.id, { status: e.target.value as any })}
-                        className={`text-xs font-bold px-2 py-1 rounded-lg border focus:outline-none ${
-                          lead.status === '접수'
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : lead.status === '상담중'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : lead.status === '개통완료'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-slate-100 text-slate-600 border-slate-200'
-                        }`}
-                      >
-                        <option value="접수">접수</option>
-                        <option value="상담중">상담중</option>
-                        <option value="개통완료">개통완료</option>
-                        <option value="보류/취소">보류/취소</option>
-                      </select>
+                {leads.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-slate-400 text-xs">
+                      접수된 상담 신청서가 없습니다.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  leads.slice(0, 5).map((lead) => (
+                    <tr key={lead.id} className="hover:bg-slate-50/80">
+                      <td className="py-3 px-3 text-slate-500 whitespace-nowrap">{lead.createdAt || '오늘'}</td>
+                      <td className="py-3 px-3 font-bold text-slate-900 whitespace-nowrap">{lead.name || '고객'}</td>
+                      <td className="py-3 px-3 text-slate-700 font-medium whitespace-nowrap">{lead.phone || '-'}</td>
+                      <td className="py-3 px-3 text-slate-600 max-w-[180px] truncate">{lead.productName || '-'}</td>
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <select
+                          value={lead.status || '접수'}
+                          onChange={(e) => updateLead(lead.id, { status: e.target.value as any })}
+                          className={`text-xs font-bold px-2 py-1 rounded-lg border focus:outline-none cursor-pointer ${
+                            (lead.status || '접수') === '접수'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : lead.status === '상담중'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : lead.status === '개통완료'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          <option value="접수">접수</option>
+                          <option value="상담중">상담중</option>
+                          <option value="개통완료">개통완료</option>
+                          <option value="보류/취소">보류/취소</option>
+                        </select>
+                      </td>
+                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            onClick={() => setAdminTab('leads')}
+                            className="p-1 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
+                            title="상담신청 관리 탭에서 전체 수정"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`'${lead.name || '고객'}'님의 신청서를 삭제하시겠습니까?`)) {
+                                deleteLead(lead.id);
+                              }
+                            }}
+                            className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            title="신청서 삭제"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
