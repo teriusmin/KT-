@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { LeadItem } from '../../types';
 import {
   Users,
   Clock,
@@ -13,11 +14,13 @@ import {
   ShieldCheck,
   Building,
   Trash2,
-  Edit3
+  Edit3,
+  AlertTriangle
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
   const { leads = [], posts, products, setAdminTab, updateLead, deleteLead } = useApp();
+  const [deletingLead, setDeletingLead] = useState<LeadItem | null>(null);
 
   const totalLeads = leads.length;
   const pendingLeads = leads.filter((l) => l.status === '접수').length;
@@ -200,11 +203,7 @@ export const AdminDashboard: React.FC = () => {
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => {
-                              if (window.confirm(`'${lead.name || '고객'}'님의 신청서를 삭제하시겠습니까?`)) {
-                                deleteLead(lead.id);
-                              }
-                            }}
+                            onClick={() => setDeletingLead(lead)}
                             className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                             title="신청서 삭제"
                           >
@@ -332,6 +331,54 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deletingLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-black text-slate-900 text-base">
+                상담 신청서 삭제 확인
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                정말 이 신청서를 삭제하시겠습니까? 클라우드 및 목록에서 영구적으로 제거됩니다.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1 text-slate-700">
+              <div><span className="font-bold">고객명:</span> {deletingLead.name || '고객'}</div>
+              <div><span className="font-bold">연락처:</span> {deletingLead.phone}</div>
+              <div><span className="font-bold">신청상품:</span> {deletingLead.productName}</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setDeletingLead(null)}
+                className="py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const id = deletingLead.id;
+                  setDeletingLead(null);
+                  await deleteLead(id);
+                }}
+                className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md shadow-rose-500/20 transition-colors flex items-center justify-center gap-1"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>영구 삭제</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

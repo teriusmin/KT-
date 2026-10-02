@@ -180,8 +180,9 @@ export const AdminLeads: React.FC = () => {
   // Confirm Delete
   const handleConfirmDelete = async () => {
     if (!deletingLead) return;
-    await deleteLead(deletingLead.id);
+    const leadId = deletingLead.id;
     setDeletingLead(null);
+    await deleteLead(leadId);
   };
 
   // Export to CSV

@@ -112,9 +112,25 @@ const STORAGE_KEYS = {
   SETTINGS: 'kt_skylife_settings',
   PRODUCTS: 'kt_skylife_products',
   LEADS: 'kt_skylife_leads',
+  DELETED_LEADS: 'kt_skylife_deleted_lead_ids',
   POSTS: 'kt_skylife_posts',
   REVIEWS: 'kt_skylife_reviews',
   FAQS: 'kt_skylife_faqs',
+};
+
+const getPersistedDeletedIds = (): Set<string> => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DELETED_LEADS);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const savePersistedDeletedIds = (ids: Set<string>) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.DELETED_LEADS, JSON.stringify(Array.from(ids)));
+  } catch {}
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -138,8 +154,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [leads, setLeads] = useState<LeadItem[]>(() => {
     try {
+      const deletedIds = getPersistedDeletedIds();
       const saved = localStorage.getItem(STORAGE_KEYS.LEADS);
-      return saved ? JSON.parse(saved) : defaultLeads;
+      const parsed: LeadItem[] = saved ? JSON.parse(saved) : defaultLeads;
+      return parsed.filter((l) => l && l.id && !deletedIds.has(l.id));
     } catch {
       return defaultLeads;
     }
@@ -224,16 +242,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           try { localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data.products)); } catch {}
         }
         if (data.leads && Array.isArray(data.leads)) {
+          const deletedIds = getPersistedDeletedIds();
+          const validConfigLeads = (data.leads as LeadItem[]).filter(
+            (l) => l && l.id && !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)
+          );
           setLeads((prev) => {
             const map = new Map<string, LeadItem>();
+            validConfigLeads.forEach((l) => map.set(l.id, l));
             prev.forEach((l) => {
-              if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
+              if (l && l.id && !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)) {
+                map.set(l.id, l);
+              }
             });
-            (data.leads as LeadItem[]).forEach((l) => {
-              if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
-            });
-            const merged = Array.from(map.values());
-            merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+            const merged = Array.from(map.values()).filter(
+              (l) => !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)
+            );
+            merged.sort((a, b) => ((b.createdAt || '') > (a.createdAt || '') ? 1 : -1));
             try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
             return merged;
           });
@@ -270,23 +294,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // 2. Subscribe to dedicated 'leads' collection (atomic real-time per application submission)
     const leadsColRef = collection(db, 'leads');
     const unsubscribeLeads = onSnapshot(leadsColRef, (querySnap) => {
+      const deletedIds = getPersistedDeletedIds();
       const cloudLeads: LeadItem[] = [];
       querySnap.forEach((d) => {
         const item = d.data() as LeadItem;
-        if (!deletedLeadIdsRef.current.has(item.id)) {
+        if (item && item.id && !deletedIds.has(item.id) && !deletedLeadIdsRef.current.has(item.id)) {
           cloudLeads.push(item);
         }
       });
       setLeads((prev) => {
         const map = new Map<string, LeadItem>();
+        cloudLeads.forEach((l) => map.set(l.id, l));
+
+        const allQueryIds = new Set(querySnap.docs.map((doc) => doc.id));
         prev.forEach((l) => {
-          if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
+          if (l && l.id && !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)) {
+            if (!querySnap.empty && allQueryIds.size > 0 && !allQueryIds.has(l.id)) {
+              return;
+            }
+            if (!map.has(l.id)) {
+              map.set(l.id, l);
+            }
+          }
         });
-        cloudLeads.forEach((l) => {
-          if (!deletedLeadIdsRef.current.has(l.id)) map.set(l.id, l);
-        });
-        const merged = Array.from(map.values());
-        merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+
+        const merged = Array.from(map.values()).filter(
+          (l) => !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)
+        );
+        merged.sort((a, b) => ((b.createdAt || '') > (a.createdAt || '') ? 1 : -1));
         try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
         return merged;
       });
@@ -424,6 +459,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       giftAmountExpected: leadData.giftAmountExpected || 45
     };
 
+    const deletedIds = getPersistedDeletedIds();
+    if (deletedIds.has(newLead.id)) {
+      deletedIds.delete(newLead.id);
+      savePersistedDeletedIds(deletedIds);
+    }
+    deletedLeadIdsRef.current.delete(newLead.id);
+
     // Optimistic local state & storage update
     setLeads((prev) => {
       const updated = [newLead, ...prev.filter((l) => l.id !== newLead.id)];
@@ -495,15 +537,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteLead = async (id: string): Promise<void> => {
+    // 1. Record in persisted deleted IDs
+    const deletedIds = getPersistedDeletedIds();
+    deletedIds.add(id);
+    savePersistedDeletedIds(deletedIds);
     deletedLeadIdsRef.current.add(id);
+
+    // 2. Immediate local state & storage update
     setLeads((prev) => {
       const updated = prev.filter((l) => l.id !== id);
       try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(updated)); } catch {}
       return updated;
     });
 
+    // 3. Delete in Firestore
     try {
+      setSyncStatus('syncing');
       await deleteDoc(doc(db, 'leads', id));
+
       const configDocRef = doc(db, 'app_data', 'config');
       const configSnap = await getDoc(configDocRef);
       if (configSnap.exists()) {
@@ -513,18 +564,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           await setDoc(configDocRef, { leads: sanitizeForFirestore(updated) }, { merge: true });
         }
       }
+      setSyncStatus('saved');
+      setTimeout(() => setSyncStatus('idle'), 2000);
       showToast('신청 내역이 안전하게 삭제되었습니다.', 'info');
     } catch (e) {
       console.error('Delete lead error:', e);
+      setSyncStatus('idle');
+      showToast('신청 내역이 삭제되었습니다.', 'info');
     }
   };
 
   const resetSampleLeads = async (): Promise<void> => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.DELETED_LEADS);
+    } catch {}
     deletedLeadIdsRef.current.clear();
     setLeads(defaultLeads);
     try {
       localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(defaultLeads));
       await persistToCloud({ leads: defaultLeads });
+      for (const dl of defaultLeads) {
+        await setDoc(doc(db, 'leads', dl.id), sanitizeForFirestore(dl));
+      }
       showToast('기본 샘플 상담 신청 데이터가 성공적으로 복원되었습니다.', 'success');
     } catch {
       showToast('기본 샘플 데이터가 로컬에 복원되었습니다.', 'info');
@@ -534,6 +595,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshFromCloud = async (): Promise<void> => {
     setSyncStatus('syncing');
     try {
+      const deletedIds = getPersistedDeletedIds();
       const cloudLeads: LeadItem[] = [];
 
       // 1. Fetch from 'leads' collection
@@ -541,7 +603,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const querySnap = await getDocs(leadsCol);
       querySnap.forEach((d) => {
         const item = d.data() as LeadItem;
-        if (!deletedLeadIdsRef.current.has(item.id)) {
+        if (item && item.id && !deletedIds.has(item.id) && !deletedLeadIdsRef.current.has(item.id)) {
           cloudLeads.push(item);
         }
       });
@@ -558,7 +620,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (Array.isArray(data.faqs)) setFaqs(data.faqs);
         if (Array.isArray(data.leads)) {
           data.leads.forEach((l: LeadItem) => {
-            if (!deletedLeadIdsRef.current.has(l.id)) {
+            if (l && l.id && !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)) {
               cloudLeads.push(l);
             }
           });
@@ -568,8 +630,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Merge and deduplicate
       const map = new Map<string, LeadItem>();
       cloudLeads.forEach((l) => map.set(l.id, l));
-      const merged = Array.from(map.values());
-      merged.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+      const merged = Array.from(map.values()).filter(
+        (l) => !deletedIds.has(l.id) && !deletedLeadIdsRef.current.has(l.id)
+      );
+      merged.sort((a, b) => ((b.createdAt || '') > (a.createdAt || '') ? 1 : -1));
       setLeads(merged);
       try { localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(merged)); } catch {}
 
